@@ -2,7 +2,7 @@ import streamlit as st
 import os
 import json
 import requests
-import markdown
+import markdown  # Requires 'python-markdown' package
 import google.generativeai as genai
 from datetime import datetime
 
@@ -28,7 +28,6 @@ def execute_code(code, language="python"):
     try:
         if language == "python":
             # Streamlit doesn't support direct exec; simulate output
-            # In practice, use a sandboxed environment
             return f"Simulated execution of code:\n{code}\nOutput: Code executed successfully"
         else:
             return f"Unsupported language: {language}"
@@ -72,7 +71,7 @@ def process_file(file):
         if file.name.endswith(".txt"):
             content = file.read().decode("utf-8")
         elif file.name.endswith(".pdf"):
-            content = "Simulated PDF content"  # Requires pdf2md in practice
+            content = "Simulated PDF content"  # Requires pdf2md or pypdf in practice
         else:
             content = "Unsupported file type"
         markdown_content = markdown.markdown(content)
@@ -152,9 +151,12 @@ def main():
         results = []
         
         # Run agent and stream results
-        for result in openhands_versa(task, file=uploaded_file, max_steps=3, planning_interval=2):
-            results.append(result)
-            result_container.markdown("\n\n".join(results))
+        try:
+            for result in openhands_versa(task, file=uploaded_file, max_steps=3, planning_interval=2):
+                results.append(result)
+                result_container.markdown("\n\n".join(results))
+        except Exception as e:
+            st.error(f"Error during task execution: {str(e)}")
         
         # Display final history
         st.subheader("Task History")
