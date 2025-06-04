@@ -2,7 +2,6 @@ import streamlit as st
 import os
 import json
 import requests
-import markdown  # Requires 'python-markdown' package
 import google.generativeai as genai
 from datetime import datetime
 
@@ -71,13 +70,13 @@ def process_file(file):
         if file.name.endswith(".txt"):
             content = file.read().decode("utf-8")
         elif file.name.endswith(".pdf"):
-            content = "Simulated PDF content"  # Requires pdf2md or pypdf in practice
+            content = "Simulated PDF content"  # Requires pypdf in practice
         else:
             content = "Unsupported file type"
-        markdown_content = markdown.markdown(content)
-        prompt = f"Analyze file content: {markdown_content[:500]}"
+        # Analyze raw content directly (no markdown conversion)
+        prompt = f"Analyze file content: {content[:500]}"
         llm_response = llm_call(prompt)
-        return {"content": markdown_content, "llm_analysis": llm_response}
+        return {"content": content, "llm_analysis": llm_response}
     except Exception as e:
         return f"File processing error: {str(e)}"
 
